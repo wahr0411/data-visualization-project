@@ -2,9 +2,8 @@
 
 ### 包含组件
 
-1.create-react-app
-
-2.ant-design
+1. create-react-app
+2. ant-design
 
 ### 使用方法
 
