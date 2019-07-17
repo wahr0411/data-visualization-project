@@ -73,7 +73,7 @@ class Snapshots extends Component {
                 console.log(d, i)
             })
             .on("click", function (d, i) {
-                props.changeGraph(i)
+                props.changeGraphID(i)
             })
 
     }

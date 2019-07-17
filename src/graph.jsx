@@ -39,6 +39,7 @@ class Graph extends Component {
             .enter()
             .append("circle")
             .attr("r", 5)
+            
         function ticked() {
             let max = {}
             let min = {}
@@ -74,8 +75,8 @@ class Graph extends Component {
         }
     }
     render() {
-        const svg = <svg id="graph" />
-        return svg
+        const  graph = <svg id="graph" />
+        return graph
     }
 }
 
