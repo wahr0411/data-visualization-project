@@ -12,6 +12,7 @@ class Snapshots extends Component {
         const padding = 100
         const width = snapshotSVG.node().parentNode.clientWidth
         snapshotSVG.attr("width", width).attr("height", width)
+        
         const max = {}
         const min = {}
         max.x = d3.max(snapshots, snpst => snpst.vector[0])
@@ -48,13 +49,20 @@ class Snapshots extends Component {
             .attr("stroke", "#d9dde2")
             .attr("stroke-width", 3)
 
-        var a = d3.rgb(255, 0, 0);	//红色
-        var b = d3.rgb(0, 255, 0);	//绿色
+        // //setting interpolate for all
+        // var a = d3.rgb(237,248,177);
+        // var b = d3.rgb(44,127,184);
+        // var compute = d3.interpolate(a, b)
+        // var linear = d3.scaleLinear()
+        //     .domain([0, snapshots.length - 1])
+        //     .range([0, 1])
 
+        //setting interpolate each day
+        var a = d3.rgb(237,248,177);
+        var b = d3.rgb(44,127,184);
         var compute = d3.interpolate(a, b)
-
         var linear = d3.scaleLinear()
-            .domain([0, snapshots.length - 1])
+            .domain([0, (snapshots.length - 1)/7])
             .range([0, 1])
 
         const points = snapshotSVG.selectAll("circle").data(snapshots)
@@ -66,7 +74,8 @@ class Snapshots extends Component {
             .attr("cy", d => yScale(d.vector[1]))
             .attr("r", 5)
             .attr("fill", d => {
-                return compute(linear(snapshots.indexOf(d) - 1))
+                // return compute(linear(snapshots.indexOf(d) - 1))//changing color according to all
+                return compute(linear((snapshots.indexOf(d) - 1)%((snapshots.length - 1)/7)))//changing color everyday
             })
             .attr("stroke", "#d9dde2")
             .on("mouseover", (d, i) => {
@@ -74,8 +83,29 @@ class Snapshots extends Component {
             })
             .on("click", function (d, i) {
                 props.changeGraphID(i)
-            })
+            })//shifting graph
 
+            //setting color gradiant
+            var defs = snapshotSVG.append("defs");
+            var linearGradient = defs.append("linearGradient")
+                .attr("id","linearColor")
+                .attr("x1","0%")
+                .attr("y1","0%")
+                .attr("x2","100%")
+                .attr("y2","0%");
+            var stop1 = linearGradient.append("stop")
+                .attr("offset","0%")
+                .style("stop-color",a.toString());
+            var stop2 = linearGradient.append("stop")
+                .attr("offset","100%")
+                .style("stop-color",b.toString());
+            //adding rect
+            var colorRect = snapshotSVG.append("rect")
+				.attr("x", 15)
+				.attr("y", 20)
+				.attr("width", 200)
+				.attr("height", 10)
+				.style("fill","url(#" + linearGradient.attr("id") + ")");
     }
     render() {
         return <svg id="snapshot" />

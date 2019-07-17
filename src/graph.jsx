@@ -3,8 +3,10 @@ import * as d3 from "d3"
 
 class Graph extends Component {
     componentWillReceiveProps(props) {
-        d3.select("#graph").selectAll("*").remove()
+        d3.select("#graph").selectAll("*").remove()//clearing svg
         const graph = props.graph
+        
+        const classinfo = props.classinfo//classinfo
         const graphSVG = d3.select("#graph")
         const padding = 100
         const width = graphSVG.node().parentNode.clientWidth
@@ -13,16 +15,51 @@ class Graph extends Component {
             .forceSimulation()
             .force(
                 "link",
-                d3.forceLink().id(function (d) {
+                d3.forceLink().id(function(d) {
                     return d.id
                 })
             )
             .force("charge", d3.forceManyBody())
             .force("center", d3.forceCenter(width / 2, width / 2))
+
         simulation.nodes(graph.nodes).on("tick", ticked)
         console.log(graph)
-        simulation.force("link").links(graph.links)
+        simulation.force("link").links(graph.links).distance(120)
 
+        //setting scale of stroke-width
+        let maxElement = {}
+        let minElement = {} 
+        maxElement.weight = d3.max(graph.links, n => n.weight)
+        minElement.weight = d3.min(graph.links, n => n.weight)
+        // maxElement.node = Math.max(graph.nodes.degree)
+        // minElement.node = Math.min(graph.nodes.degree)
+        const linkScale = d3
+                .scaleLinear()
+                .domain([minElement.weight, maxElement.weight])
+                .range([1,8])
+        // const nodeScale = d3
+        //         .scaleLinear()
+        //         .domain([minElement.node, maxElement.node])
+        //         .range([2,10])
+
+
+        //collecting classinfo
+        const classinfoClassname1=[]
+        for (const key in classinfo) {
+            classinfoClassname1.push(classinfo[key])
+        }
+        function unique5(arr){
+            let x = new Set(arr);
+            return [...x];
+            }
+        const  classinfoClassname = unique5(classinfoClassname1)
+
+        //setting scale of classcolor
+        const color = d3.schemeCategory10
+        const colorScale = d3.scaleOrdinal()
+                    .domain(classinfoClassname)
+                    .range(color)
+        
         const link = graphSVG
             .append("g")
             .attr("class", "links")
@@ -31,6 +68,8 @@ class Graph extends Component {
             .enter()
             .append("line")
             .attr("stroke", "#d9dde2")
+            .attr("stroke-width",d => linkScale(d.weight))//changing stroke-width according to weight
+        
         const node = graphSVG
             .append("g")
             .attr("class", "nodes")
@@ -39,7 +78,37 @@ class Graph extends Component {
             .enter()
             .append("circle")
             .attr("r", 5)
-            
+            // .attr("r", d => d.degree)
+            .attr("fill",d => colorScale(classinfo[d.id]))//dying according to classname
+
+        //lengend
+        const length = 10
+        const legend = graphSVG
+            .append("g")
+            .attr("class", "legends")
+            .selectAll("legends")
+            .data(classinfoClassname)
+            .enter()
+            .append("rect")
+            .attr("x",function(d,i){
+                return i*50
+            })
+			.attr("y",20)
+			.attr("width",length)
+			.attr("height",length)
+			.attr("fill",d => colorScale(d))
+        const legendText = graphSVG
+            .append("g")
+    		.selectAll("text")
+    		.data(classinfoClassname)
+    		.enter()
+    		.append("text")
+    		.text(d => d)
+        	.attr("x",function(d,i){
+                return i*50
+            })
+    		.attr("y",50)
+
         function ticked() {
             let max = {}
             let min = {}
@@ -55,28 +124,28 @@ class Graph extends Component {
                 .scaleLinear()
                 .domain([min.y, max.y])
                 .range([padding, width - padding])
-            link.attr("x1", function (d) {
+            link.attr("x1", function(d) {
                 return xScale(d.source.x)
             })
-                .attr("y1", function (d) {
+                .attr("y1", function(d) {
                     return yScale(d.source.y)
                 })
-                .attr("x2", function (d) {
+                .attr("x2", function(d) {
                     return xScale(d.target.x)
                 })
-                .attr("y2", function (d) {
+                .attr("y2", function(d) {
                     return yScale(d.target.y)
                 })
-            node.attr("cx", function (d) {
+            node.attr("cx", function(d) {
                 return xScale(d.x)
-            }).attr("cy", function (d) {
+            }).attr("cy", function(d) {
                 return yScale(d.y)
             })
         }
     }
     render() {
-        const  graph = <svg id="graph" />
-        return graph
+        const svg = <svg id="graph" />
+        return svg
     }
 }
 
