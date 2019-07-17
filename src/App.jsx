@@ -54,7 +54,7 @@ class App extends React.Component {
                             <Degrees snapshots={this.state.snapshots} graphID={this.state.graphID} />
                         </Row>
                         <Row span={12}>
-                            <Controlpanel />
+                            {/* <Controlpanel /> */}
                         </Row>
                     </Col>
                     <Col span={10}>
