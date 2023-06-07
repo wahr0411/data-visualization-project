@@ -14,3 +14,4 @@
 
 1. yarn build
 
+test
